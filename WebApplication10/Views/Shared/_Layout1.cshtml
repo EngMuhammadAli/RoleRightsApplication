@@ -1,0 +1,181 @@
+﻿@using System.IdentityModel.Tokens.Jwt
+@using System.Security.Claims
+
+
+
+@{
+    string token = Context.Request.Cookies["user-access-token"];
+    string Role = string.Empty;
+    string UserID = string.Empty;
+
+    var tokenHandler = new JwtSecurityTokenHandler();
+
+    // Decode the token
+    var jwtToken = tokenHandler.ReadJwtToken(token);
+
+    // Extract user ID, role, and expiration time claims from the decoded token
+    var userIdClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == "nameid");
+    var roleClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == "role");
+    var expirationClaim = jwtToken.ValidTo;
+
+    // Check if all required claims are present
+    if (userIdClaim != null && roleClaim != null && expirationClaim != null)
+    {
+        UserID = userIdClaim.Value;
+        Role = roleClaim.Value;
+    }
+    else
+    {
+        // If any required claim is missing, log the issue or handle it accordingly
+        Console.WriteLine("User ID, role, or expiration time claim is missing in the token.");
+    }
+}
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - School Dashboard</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="~/css/site.css" rel="stylesheet" />
+    <style>
+        html, body {
+            height: 100%;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+        }
+
+        main {
+            flex: 1;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="#">School Dashboard</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                        <li class="nav-item">
+                            <a class="nav-link active" aria-current="page" href="#">Home</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">Features</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">Pricing</a>
+                        </li>
+                    </ul>
+                    <form class="d-flex">
+                        <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+                        <button class="btn btn-outline-light" type="submit">Search</button>
+                    </form>
+                </div>
+            </div>
+        </nav>
+    </header>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-2 bg-light p-0">
+                <nav class="navbar navbar-expand-md navbar-light bg-light flex-md-column align-items-start py-2">
+                    <div class="collapse navbar-collapse" id="navbarNavDropdown">
+                        <ul class="navbar-nav flex-column w-100" style="height:100%">
+                            @if (Role == "Admin" || Role == "Teacher")
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link active" asp-area="" asp-controller="Student" asp-action="Index"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-area="" asp-controller="Student" asp-action="Index"><i class="fas fa-user-graduate"></i> Students</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-area="" asp-controller="Account" asp-action="Register"><i class="fas fa-user-graduate"></i> Add New User </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-area="" asp-controller="Admin" asp-action="Create"><i class="fas fa-user-graduate"></i> Add New Role </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-area="" asp-controller="Admin" asp-action="UsersAndRoles"><i class="fas fa-user-graduate"></i> Users And there Roles </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-area="" asp-controller="Admin" asp-action="UserList"><i class="fas fa-user-graduate"></i> Assin Role To Users</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="#"><i class="fas fa-chalkboard-teacher"></i> Teachers</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="#"><i class="fas fa-book"></i> Courses</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="#"><i class="fas fa-calendar-alt"></i> Calendar</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="#"><i class="fas fa-cog"></i> Settings</a>
+                                </li>
+                            }
+                            @if (Role == "Student")
+                            {
+                                <a class="nav-link" href="#"><i class="fas fa-user-graduate"></i> Students</a>
+
+                                <li class="nav-item">
+                                    <a class="nav-link" href="#"><i class="fas fa-book"></i> Courses</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="#"><i class="fas fa-calendar-alt"></i> Calendar</a>
+                                </li>
+                            }
+                            
+                        </ul>
+                    </div>
+                </nav>
+            </div>
+            <div class="col-md-10">
+                <main role="main" class="pb-3">
+                    @RenderBody()
+                </main>
+            </div>
+        </div>
+    </div>
+    <footer class="border-top footer text-muted mt-auto py-3 bg-light">
+        <div class="container text-center">
+            &copy; 2024 - School Dashboard - <a href="#">Privacy</a>
+        </div>
+    </footer>
+    <script src="https://cdn.jsdelivr.net/npm/popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.min.js"></script>
+    <script src="~/js/site.js"></script>
+</body>
+</html>
+
+<style>
+    html, body {
+        height: 100%;
+    }
+
+    body {
+        display: flex;
+        flex-direction: column;
+    }
+
+    main {
+        flex: 1;
+    }
+
+    footer {
+        background-color: #f8f9fa;
+        padding: 1rem 0;
+        text-align: center;
+    }
+
+</style>

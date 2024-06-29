@@ -1,0 +1,30 @@
+﻿@model List<UserWithRolesViewModel>
+
+<h2>Users and Roles</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>User ID</th>
+            <th>Username</th>
+            <th>Roles</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var user in Model)
+        {
+            <tr>
+                <td>@user.UserId</td>
+                <td>@user.UserName</td>
+                <td>
+                    <ul>
+                        @foreach (var role in user.Roles)
+                        {
+                            <li>@role</li>
+                        }
+                    </ul>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

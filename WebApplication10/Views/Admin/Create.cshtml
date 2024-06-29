@@ -1,0 +1,11 @@
+﻿@model string
+
+<h2>Create Role</h2>
+
+<form asp-action="Create">
+    <div class="form-group">
+        <label for="roleName">Role Name</label>
+        <input type="text" class="form-control" id="roleName" name="roleName" value="@Model" />
+    </div>
+    <button type="submit" class="btn btn-primary">Create</button>
+</form>
